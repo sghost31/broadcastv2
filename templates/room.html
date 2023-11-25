@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Live Streaming Platform</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>WebRTC Live Streaming Platform</h1>
+    </header>
+
+    <main>
+        <section id="room-section">
+            <h2>Host a Stream</h2>
+            <button onclick="startStreaming()">Start Streaming</button>
+        </section>
+
+        <section id="stream-section" style="display: none;">
+            <h2>Live Stream</h2>
+            <div id="local-video-container">
+                <video id="local-video" autoplay muted playsinline></video>
+            </div>
+            <div id="remote-videos"></div>
+            <input type="text" id="chatInput" placeholder="Type your message">
+            <button onclick="sendMessage()">Send</button>
+            <div id="chatMessages"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 WebRTC Live Streaming Platform. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
