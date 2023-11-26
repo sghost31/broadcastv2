@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_cors import CORS
 from flask_mail import Mail, Message
+from flask_socketio import SocketIO, emit
+from flask_socketio import join_room, leave_room
 import pymysql.cursors
 import datetime
 import os
@@ -10,6 +12,8 @@ import random
 import string
 
 app = Flask(__name__, static_url_path='/static')
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
@@ -41,6 +45,26 @@ def generate_datetime_id():
 
 def generate_verification_code():
     return ''.join(random.choices(string.digits, k=6))
+
+###############
+@socketio.on('message')
+def handle_message(message):
+    print('Received message:', message)
+
+    if message.get('type') == 'join_room':
+        join_room(message['room'])
+        emit('message', {'type': 'chat', 'text': f'User {message["sender"]} has joined the room.'}, room=message['room'])
+    elif message.get('type') == 'start_stream':
+        room = message['room']
+        join_room(room)
+        emit('message', {'type': 'stream', 'text': f'User {message["sender"]} started live video in the room: {room}.'}, room=room)
+
+        # Notify the user who started the stream to generate an SDP offer
+        emit('message', {'type': 'generate_offer', 'room': room}, room=request.sid)
+    elif message.get('type') == 'offer':
+        # Handle SDP offer from the user who started the stream
+        emit('message', {'type': 'answer', 'answer': message['offer']}, room=message['room'])
+#################
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -101,7 +125,10 @@ def signup():
         # Create a JWT token
         secret_key = os.getenv('JWT_SECRET', 'defaultSecretKey')
         token = create_access_token(identity={'username': username, 'id': datetime_id})
-
+#####
+        # Emit a message to all clients about the new user signup
+        socketio.emit('message', {'type': 'signup', 'username': username}, broadcast=True)
+#####
         # Respond with the token
         return jsonify({'token': token})
 
@@ -196,21 +223,17 @@ def login():
 def home():
     return render_template('signup.html')
 
-@app.route('/login.html')
-def render_login():
-    return render_template('login.html')
-
 @app.route('/verification.html')
 def verification():
     return render_template('verification.html')
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
-
+@app.route('/login.html')
+def render_login():
+    return render_template('login.html')
+###
 @app.route('/lobby.html')
-def render_lobby():
+def render_index():
     return render_template('lobby.html')
-
+###
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, host='localhost', port=3000, debug=True)

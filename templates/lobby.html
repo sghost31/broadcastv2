@@ -3,35 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Chat with Chat</title>
-    <style>
-        #video-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #localVideo, #remoteVideo {
-            width: 45%;
-            height: auto;
-        }
-
-        #chatbox {
-            height: 300px;
-            width: 45%;
-            overflow-y: scroll;
-        }
-    </style>
+    <title>Live Video and Chat Streaming</title>
 </head>
 <body>
-    <h1>Video Chat with Chat</h1>
-    <div id="video-container">
-        <video id="localVideo" autoplay muted></video>
-        <video id="remoteVideo" autoplay></video>
-    </div>
-    <div id="chatbox"></div>
-    <input type="text" id="messageInput" placeholder="Type your message">
-    <button onclick="sendMessage()">Send</button>
 
-    <script src="main.js"></script>
+    <h1>Live Video and Chat Streaming</h1>
+
+    <!-- Room creation and joining buttons -->
+    <button onclick="startStreaming()">Start Live Video</button>
+    <label for="roomName">Room Name:</label>
+    <input type="text" id="roomName" placeholder="Enter room name">
+    <button onclick="joinRoom()">Join Room</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" defer></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            const socket = io('ws://localhost:3000');
+    
+            window.startStreaming = function() {
+                const roomName = document.getElementById('roomName').value;
+                const message = { type: 'start_stream', room: roomName };
+                socket.emit('message', message);
+            };
+    
+            window.joinRoom = function() {
+                const roomName = document.getElementById('roomName').value;
+                const message = { type: 'join_room', room: roomName };
+                socket.send(JSON.stringify(message));
+            };
+        });
+    </script>
+    
 </body>
 </html>

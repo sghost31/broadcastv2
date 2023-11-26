@@ -3,44 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Live Streaming Platform</title>
-    <style>
-        video {
-            width: 100%;
-            max-width: 600px;
-        }
-    </style>
+    <title>Live Video Stream</title>
 </head>
 <body>
 
-    <header>
-        <h1>WebRTC Live Streaming Platform</h1>
-    </header>
+    <h1>Live Video Stream</h1>
 
-    <main>
-        <section id="room-section">
-            <h2>Host a Stream</h2>
-            <button onclick="startStreaming()">Start Streaming</button>
-        </section>
+    <!-- Video element to display the live stream -->
+    <video id="liveVideo" width="640" height="480" controls autoplay></video>
 
-        <section id="stream-section" style="display: none;">
-            <h2>Live Stream</h2>
-            <div id="local-video-container">
-                <video id="local-video" autoplay muted playsinline></video>
-            </div>
-            <div id="remote-videos"></div>
-            <input type="text" id="chatInput" placeholder="Type your message">
-            <button onclick="sendMessage()">Send</button>
-            <div id="chatMessages"></div>
-        </section>
-    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" defer></script>
+    <script>
+        window.addEventListener('load', () => {
+            const socket = io('ws://localhost:3000');
+            let peerConnection;
 
-    <footer>
-        <p>&copy; 2023 WebRTC Live Streaming Platform. All rights reserved.</p>
-    </footer>
+            // Listen for messages of type 'stream' to start the live video
+            socket.on('message', async (message) => {
+                if (message.type === 'stream') {
+                    const roomName = message.room;
+                    const liveVideo = document.getElementById('liveVideo');
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
-    <script src="app.js"></script>
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        liveVideo.srcObject = stream;
 
+                        // Create a peer connection
+                        peerConnection = new RTCPeerConnection();
+
+                        // Add local stream to the peer connection
+                        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+                        // Handle incoming tracks from the remote peer
+                        peerConnection.ontrack = (event) => {
+                            liveVideo.srcObject = event.streams[0];
+                        };
+
+                        // Send SDP offer to the remote peer
+                        const offer = await peerConnection.createOffer();
+                        await peerConnection.setLocalDescription(offer);
+
+                        socket.emit('message', { type: 'offer', offer, room: roomName });
+                    } catch (error) {
+                        console.error('Error accessing media devices:', error);
+                    }
+                } else if (message.type === 'answer') {
+                    // Handle SDP answer from the remote peer
+                    const answer = new RTCSessionDescription(message.answer);
+                    await peerConnection.setRemoteDescription(answer);
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>
