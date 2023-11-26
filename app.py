@@ -19,7 +19,7 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 # Set the JWT secret key
-app.config['JWT_SECRET_KEY'] = 'sghost31'
+app.config['JWT_SECRET_KEY'] = secretkey
 
 # MySQL database connection
 connection = pymysql.connect(
@@ -35,9 +35,8 @@ connection = pymysql.connect(
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'tomicokz@gmail.com'
-app.config['MAIL_PASSWORD'] = 'dcazvpmklwunbjtm'
-
+app.config['MAIL_USERNAME'] = //email
+app.config['MAIL_PASSWORD'] = //password
 mail = Mail(app)
 
 def generate_datetime_id():
