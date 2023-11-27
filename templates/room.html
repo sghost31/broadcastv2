@@ -46,7 +46,14 @@
 <body>
     <div id="video-container">
         <!-- Video player goes here -->
+<<<<<<< HEAD
         <video id="video" width="100%" autoplay></video>
+=======
+        <video id="video" width="100%" controls>
+            <source src="your-video-source.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+>>>>>>> 12d5ae4e65e98839dcb5132b88d99873ebd7dbd5
     </div>
 
     <div id="chat-container"></div>
@@ -58,6 +65,7 @@
 
     <script>
         // WebSocket connection
+<<<<<<< HEAD
         const socket = new WebSocket('wss://192.168.1.225:5123/stream');
     
         // Video player
@@ -87,26 +95,52 @@
             alert('Webcam access is not supported in this environment.');
         }
     
+=======
+        const socket = new WebSocket('ws://192.168.1.225:5123/stream');
+
+
+        // Video player
+        const video = document.getElementById('video');
+
+        // Chat container
+        const chatContainer = document.getElementById('chat-container');
+
+        // Message input
+        const messageInput = document.getElementById('message-input');
+
+>>>>>>> 12d5ae4e65e98839dcb5132b88d99873ebd7dbd5
         // Function to send messages
         function sendMessage() {
             const message = messageInput.value;
             socket.send(message);
             messageInput.value = '';
         }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 12d5ae4e65e98839dcb5132b88d99873ebd7dbd5
         // Function to handle incoming messages
         function handleIncomingMessage(message) {
             const p = document.createElement('p');
             p.textContent = message;
             chatContainer.appendChild(p);
         }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 12d5ae4e65e98839dcb5132b88d99873ebd7dbd5
         // WebSocket event listeners
         socket.addEventListener('message', (event) => {
             const message = event.data;
             handleIncomingMessage(message);
         });
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 12d5ae4e65e98839dcb5132b88d99873ebd7dbd5
         // Video source can be changed dynamically based on your requirements
         // video.src = 'your-new-video-source.mp4';
     </script>
