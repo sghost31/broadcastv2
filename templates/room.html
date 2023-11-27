@@ -3,58 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Video Stream</title>
+    <title>Live Video and Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #video-container {
+            width: 80%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+
+        #chat-container {
+            width: 80%;
+            max-width: 800px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            height: 200px;
+        }
+
+        #message-input {
+            width: 70%;
+            padding: 5px;
+            margin-right: 5px;
+        }
+
+        #send-button {
+            padding: 5px;
+        }
+    </style>
 </head>
 <body>
+    <div id="video-container">
+        <!-- Video player goes here -->
+        <video id="video" width="100%" controls>
+            <source src="your-video-source.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
-    <h1>Live Video Stream</h1>
+    <div id="chat-container"></div>
 
-    <!-- Video element to display the live stream -->
-    <video id="liveVideo" width="640" height="480" controls autoplay></video>
+    <div>
+        <input type="text" id="message-input" placeholder="Type your message">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" defer></script>
     <script>
-        window.addEventListener('load', () => {
-            const socket = io('ws://localhost:3000');
-            let peerConnection;
+        // WebSocket connection
+        const socket = new WebSocket('ws://your-websocket-server');
 
-            // Listen for messages of type 'stream' to start the live video
-            socket.on('message', async (message) => {
-                if (message.type === 'stream') {
-                    const roomName = message.room;
-                    const liveVideo = document.getElementById('liveVideo');
+        // Video player
+        const video = document.getElementById('video');
 
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                        liveVideo.srcObject = stream;
+        // Chat container
+        const chatContainer = document.getElementById('chat-container');
 
-                        // Create a peer connection
-                        peerConnection = new RTCPeerConnection();
+        // Message input
+        const messageInput = document.getElementById('message-input');
 
-                        // Add local stream to the peer connection
-                        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        // Function to send messages
+        function sendMessage() {
+            const message = messageInput.value;
+            socket.send(message);
+            messageInput.value = '';
+        }
 
-                        // Handle incoming tracks from the remote peer
-                        peerConnection.ontrack = (event) => {
-                            liveVideo.srcObject = event.streams[0];
-                        };
+        // Function to handle incoming messages
+        function handleIncomingMessage(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            chatContainer.appendChild(p);
+        }
 
-                        // Send SDP offer to the remote peer
-                        const offer = await peerConnection.createOffer();
-                        await peerConnection.setLocalDescription(offer);
-
-                        socket.emit('message', { type: 'offer', offer, room: roomName });
-                    } catch (error) {
-                        console.error('Error accessing media devices:', error);
-                    }
-                } else if (message.type === 'answer') {
-                    // Handle SDP answer from the remote peer
-                    const answer = new RTCSessionDescription(message.answer);
-                    await peerConnection.setRemoteDescription(answer);
-                }
-            });
+        // WebSocket event listeners
+        socket.addEventListener('message', (event) => {
+            const message = event.data;
+            handleIncomingMessage(message);
         });
+
+        // Video source can be changed dynamically based on your requirements
+        // video.src = 'your-new-video-source.mp4';
     </script>
-    
 </body>
 </html>

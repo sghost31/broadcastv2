@@ -14,24 +14,58 @@
     <label for="roomName">Room Name:</label>
     <input type="text" id="roomName" placeholder="Enter room name">
     <button onclick="joinRoom()">Join Room</button>
+    <!-- Lobby display -->
+    <div id="lobby"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js" defer></script>
-
     <script>
         window.addEventListener('load', () => {
-            const socket = io('ws://localhost:3000');
-    
+            const socket = io('http://192.168.1.224:5000');
+
             window.startStreaming = function() {
                 const roomName = document.getElementById('roomName').value;
-                const message = { type: 'start_stream', room: roomName };
+                const message = { type: 'start_stream', room: roomName, sender: 'some_sender' };
                 socket.emit('message', message);
+
+                // Redirect to the room page after starting the live video stream
+                window.location.href = `/room.html?room=${roomName}`;
             };
-    
+
             window.joinRoom = function() {
                 const roomName = document.getElementById('roomName').value;
                 const message = { type: 'join_room', room: roomName };
                 socket.send(JSON.stringify(message));
+
+                // Join the lobby after successfully starting the live video stream
+                socket.emit('join_lobby');
             };
+
+            // Add the lobby update listener
+            socket.on('update_lobby', (data) => {
+                const lobbyDiv = document.getElementById('lobby');
+                lobbyDiv.innerHTML = '';  // Clear previous entries
+
+                data.rooms.forEach((room) => {
+                    const roomButton = document.createElement('button');
+                    roomButton.textContent = `Join Room: ${room}`;
+                    roomButton.onclick = () => {
+                        // Add code to handle joining the selected room
+                        // You can redirect to a new page or perform other actions
+                        window.location.href = `/room.html?room=${room}`;
+                    };
+
+                    lobbyDiv.appendChild(roomButton);
+                });
+            });
+
+            // Function to handle joining a room
+            function joinRoom(roomName) {
+                // You can perform actions to join the selected room, for example:
+                // Redirect to a new page with the roomName
+                window.location.href = `/room.html?room=${roomName}`;
+                // Alternatively, you can emit a socket event to the server to handle room joining logic
+                // socket.emit('join_room', { room: roomName });
+            }
         });
     </script>
     

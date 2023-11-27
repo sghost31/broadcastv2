@@ -3,8 +3,8 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_cors import CORS
 from flask_mail import Mail, Message
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_cors import cross_origin
+from flask_socketio import SocketIO, emit
+from flask_socketio import join_room, leave_room
 import pymysql.cursors
 import datetime
 import os
@@ -12,16 +12,16 @@ import random
 import string
 
 app = Flask(__name__, static_url_path='/static')
-auth_namespace = '/auth'
-stream_namespace = '/stream'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-socketio.init_app(app, cors_allowed_origins="http://192.168.1.225:5123", namespace=auth_namespace)
-CORS(app, resources={r"/*": {"origins": ["http://192.168.1.225:3000"]}})
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+CORS(app, resources={r
+CORS(app, resources={r)
+)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 # Set the JWT secret key
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'sghost31')
+app.config['JWT_SECRET_KEY'] = 'sghost31'
 
 # MySQL database connection
 connection = pymysql.connect(
@@ -52,34 +52,22 @@ def generate_verification_code():
 def handle_message(message):
     print('Received message:', message)
 
-    if isinstance(message, dict):
-        if message.get('type') == 'join_room':
-            room_name = message['room']
+    if message.get('type') == 'join_room':
+        join_room(message['room'])
+        emit('message', {'type': 'chat', 'text': f'User {message["sender"]} has joined the room.'}, room=message['room'])
+    elif message.get('type') == 'start_stream':
+        room = message['room']
+        join_room(room)
+        emit('message', {'type': 'stream', 'text': f'User {message["sender"]} started live video in the room: {room}.'}, room=room)
 
-            # Check if the room exists, and create it if not
-            with connection.cursor() as cursor:
-                check_room_query = 'SELECT * FROM room WHERE room_name = %s'
-                cursor.execute(check_room_query, (room_name,))
-                existing_room = cursor.fetchone()
-
-                if not existing_room:
-                    insert_room_query = 'INSERT INTO room (room_name) VALUES (%s)'
-                    cursor.execute(insert_room_query, (room_name,))
-
-                join_room(room_name)
-                emit('message', {'type': 'chat', 'text': f'User {message["sender"]} has joined the room.'}, room=room_name)
-        elif message.get('type') == 'start_stream':
-            room_name = message['room']
-            sender = message['sender']
-
-            # Your logic for handling the 'start_stream' message
-            print(f'Starting stream in room {room_name} initiated by {sender}')
-
-            # You can add more logic here, for example, notifying other users in the room
-            emit('message', {'type': 'stream_started', 'text': f'Stream started by {sender}'}, room=room_name)
+        # Notify the user who started the stream to generate an SDP offer
+        emit('message', {'type': 'generate_offer', 'room': room}, room=request.sid)
+    elif message.get('type') == 'offer':
+        # Handle SDP offer from the user who started the stream
+        emit('message', {'type': 'answer', 'answer': message['offer']}, room=message['room'])
+#################
 
 @app.route('/signup', methods=['POST'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def signup():
     try:
         data = request.get_json()
@@ -140,8 +128,7 @@ def signup():
         token = create_access_token(identity={'username': username, 'id': datetime_id})
 #####
         # Emit a message to all clients about the new user signup
-        socketio.emit('message', {'type': 'signup', 'username': username}, namespace='/')
-
+        socketio.emit('message', {'type': 'signup', 'username': username}, broadcast=True)
 #####
         # Respond with the token
         return jsonify({'token': token})
@@ -151,7 +138,6 @@ def signup():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/verify', methods=['POST'])
-@cross_origin()
 def verify():
     try:
         data = request.get_json()
@@ -198,10 +184,8 @@ def verify():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/login', methods=['POST'])
-@cross_origin()
 def login():
     try:
-        print('Login request received!')
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
@@ -236,11 +220,6 @@ def login():
         print(str(e))
         return jsonify({'error': 'Internal Server Error'}), 500
 
-@socketio.on('join_lobby')
-def handle_join_lobby():
-    available_rooms = get_available_rooms()  # Implement a function to get available rooms
-    socketio.emit('update_lobby', {'rooms': available_rooms}, namespace='/lobby')
-
 @app.route('/')
 def home():
     return render_template('signup.html')
@@ -257,27 +236,5 @@ def render_login():
 def render_index():
     return render_template('lobby.html')
 ###
-
-def update_lobby():
-    rooms = get_rooms()
-    socketio.emit('update_lobby', {'rooms': rooms}, namespace='/lobby')
-
-
-@app.route('/room.html')
-def render_room():
-    return render_template('room.html')
-
-def get_available_rooms():
-    try:
-        with connection.cursor() as cursor:
-            get_rooms_query = 'SELECT room_name FROM room'
-            cursor.execute(get_rooms_query)
-            rooms = cursor.fetchall()
-            return [room['room_name'] for room in rooms]
-    except Exception as e:
-        print(str(e))
-        return []
-
-
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=3000, debug=True)

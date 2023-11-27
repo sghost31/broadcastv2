@@ -4,22 +4,124 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Signup</title>
+  <!-- Icon Page bar -->
+  <link rel="icon" sizes="192x192" href="images/logo.png" type="image/x-icon"/>
+  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon"/>
+  <link rel="apple-touch-icon" href="images/logo.png" type="image/x-icon"/>
+    
+  <!-- ===== Iconscout CSS ===== -->
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+  <!-- ===== CSS ===== -->
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 400px;
+    }
+
+    .forms {
+      display: flex;
+    }
+
+    .form {
+      box-sizing: border-box;
+      padding: 20px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .input-field {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 4px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
   <script src="/static/login.js" defer></script>
 </head>
 <body>
 
   <!-- Add a login form to your HTML -->
-<h1>User Login</h1>
-
-<form id="loginForm">
-  <label for="email">Email:</label>
-  <input type="email" id="loginEmail" name="email" required><br>
-
-  <label for="password">Password:</label>
-  <input type="password" id="loginPassword" name="password" required><br>
-
-  <button type="button" onclick="login()">Login</button>
-</form>
+  <div class="container">
+    <h1>User Login</h1>
+    <div class="forms">
+      <div class="form login">
+        <form id="loginForm">
+          <div class="input-field">
+            <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
+            <i class="uil uil-envelope icon"></i>
+          </div>
+          <div class="input-field">
+            <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+            <i class="uil uil-lock icon"></i>
+          </div>
+          <div class="input-field button">
+            <button type="button" onclick="login()">Login</button>
+          </div>
+        </form>
+        <div class="login-signup">
+          <span class="text">Not a member?
+              <a href="/templates/signup.html" class="text signup-link">Signup Now</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div> 
 
 </body>
 </html>
