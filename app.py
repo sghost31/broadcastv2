@@ -62,6 +62,7 @@ def handle_message(message):
                 check_room_query = 'SELECT * FROM room WHERE room_name = %s'
                 cursor.execute(check_room_query, (room_name,))
                 existing_room = cursor.fetchone()
+<<<<<<< HEAD
 
                 if not existing_room:
                     insert_room_query = 'INSERT INTO room (room_name) VALUES (%s)'
@@ -80,6 +81,26 @@ def handle_message(message):
             emit('message', {'type': 'stream_started', 'text': f'Stream started by {sender}'}, room=room_name)
 
 @app.route('/index', methods=['POST'])
+=======
+
+                if not existing_room:
+                    insert_room_query = 'INSERT INTO room (room_name) VALUES (%s)'
+                    cursor.execute(insert_room_query, (room_name,))
+
+                join_room(room_name)
+                emit('message', {'type': 'chat', 'text': f'User {message["sender"]} has joined the room.'}, room=room_name)
+        elif message.get('type') == 'start_stream':
+            room_name = message['room']
+            sender = message['sender']
+
+            # Your logic for handling the 'start_stream' message
+            print(f'Starting stream in room {room_name} initiated by {sender}')
+
+            # You can add more logic here, for example, notifying other users in the room
+            emit('message', {'type': 'stream_started', 'text': f'Stream started by {sender}'}, room=room_name)
+
+@app.route('/signup', methods=['POST'])
+>>>>>>> b218f96a3a9eb2ceae7f18fd88172dba233a5dc0
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def signup():
     try:
