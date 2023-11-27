@@ -46,10 +46,7 @@
 <body>
     <div id="video-container">
         <!-- Video player goes here -->
-        <video id="video" width="100%" controls>
-            <source src="your-video-source.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+        <video id="video" width="100%" autoplay></video>
     </div>
 
     <div id="chat-container"></div>
@@ -61,37 +58,55 @@
 
     <script>
         // WebSocket connection
-        const socket = new WebSocket('ws://your-websocket-server');
-
+        const socket = new WebSocket('wss://192.168.1.225:5123/stream');
+    
         // Video player
         const video = document.getElementById('video');
-
+    
         // Chat container
         const chatContainer = document.getElementById('chat-container');
-
+    
         // Message input
         const messageInput = document.getElementById('message-input');
-
+    
+        // Check for getUserMedia support
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Request webcam access
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    // Assign the stream to the video element
+                    video.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing webcam:', error);
+                });
+        } else {
+            console.error('getUserMedia not supported or not available in this environment.');
+    
+            // Provide a message to the user that webcam access is not supported
+            alert('Webcam access is not supported in this environment.');
+        }
+    
         // Function to send messages
         function sendMessage() {
             const message = messageInput.value;
             socket.send(message);
             messageInput.value = '';
         }
-
+    
         // Function to handle incoming messages
         function handleIncomingMessage(message) {
             const p = document.createElement('p');
             p.textContent = message;
             chatContainer.appendChild(p);
         }
-
+    
         // WebSocket event listeners
         socket.addEventListener('message', (event) => {
             const message = event.data;
             handleIncomingMessage(message);
         });
-
+    
         // Video source can be changed dynamically based on your requirements
         // video.src = 'your-new-video-source.mp4';
     </script>

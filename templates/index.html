@@ -1,20 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broadcasting Platform</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Signup</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <script src="/static/signup.js" defer></script>
+  <style>
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 400px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.forms {
+  display: flex;
+}
+
+.form {
+  box-sizing: border-box;
+  padding: 20px;
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.input-field {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+.i {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 4px;
+  background-color: #3498db;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.showHidePw {
+  cursor: pointer;
+}
+  </style> 
 </head>
 <body>
-    <div>
-        <video id="videoElement" width="640" height="480" autoplay></video>
-    </div>
-    <div>
-        <input type="text" id="messageInput" placeholder="Type your message">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-    <div id="chatMessages"></div>
+  <div class="container">
+  <h1>User Signup</h1>
+  <div class="forms">
+    <div class="form signup">
+    <form id="signupForm">
+      
+  <div class="input-field">
+    <input type="text" id="username" name="username" placeholder="Enter your name" required>
+    <i class="uil uil-user"></i>
+  </div>
+  <div class="input-field">
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+    <i class="uil uil-envelope icon"></i>
+  </div>
 
-    <script src="/static/main.js"></script>
+  <div class="input-field">
+    <input type="password" id="password" name="password" placeholder="Create a password" required>
+    <i class="uil uil-lock icon"></i>
+    <i class="uil uil-eye-slash showHidePw"></i>
+  </div>
+  <div class="input-field">
+    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm a password" required>
+    <i class="uil uil-lock icon"></i>
+    <i class="uil uil-eye-slash showHidePw"></i>
+  </div>
+  <div class="input-field">
+    <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
+    <i class="uil uil-phone icon"></i>
+  </div>
+    <button type="button" onclick="signup()">Signup</button>
+  </div>
+  </form>
+  <div class="login-signup">
+    <span class="text">Already a member?
+        <a href="login.html" class="text login-link">Login Now</a>
+    </span>
+</div>
+</div>
+</div>
+</div> 
+
 </body>
 </html>
