@@ -14,9 +14,10 @@ import string
 app = Flask(__name__, static_url_path='/static')
 auth_namespace = '/auth'
 stream_namespace = '/stream'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-socketio.init_app(app, cors_allowed_origins="http://192.168.1.225:5123", namespace=auth_namespace)
-CORS(app, resources={r"/*": {"origins": ["http://192.168.1.225:3000"]}})
+socketio = SocketIO(app, cors_allowed_origins="http://192.168.1.225:5123", async_mode='threading', namespace=stream_namespace)
+
+socketio.init_app(app, cors_allowed_origins="http://192.168.1.225:5123", namespace=stream_namespace)
+CORS(app, resources={r"/*": {"origins": "http://192.168.1.225:5123"}})
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
@@ -78,7 +79,7 @@ def handle_message(message):
             # You can add more logic here, for example, notifying other users in the room
             emit('message', {'type': 'stream_started', 'text': f'Stream started by {sender}'}, room=room_name)
 
-@app.route('/signup', methods=['POST'])
+@app.route('/index', methods=['POST'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def signup():
     try:
@@ -140,7 +141,7 @@ def signup():
         token = create_access_token(identity={'username': username, 'id': datetime_id})
 #####
         # Emit a message to all clients about the new user signup
-        socketio.emit('message', {'type': 'signup', 'username': username}, namespace='/')
+        socketio.emit('message', {'type': 'signup', 'username': username}, namespace=stream_namespace)
 
 #####
         # Respond with the token
@@ -243,7 +244,7 @@ def handle_join_lobby():
 
 @app.route('/')
 def home():
-    return render_template('signup.html')
+    return render_template('index.html')
 
 @app.route('/verification.html')
 def verification():
@@ -280,4 +281,4 @@ def get_available_rooms():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=3000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5123, debug=True)
