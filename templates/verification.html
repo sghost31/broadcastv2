@@ -5,21 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Verification</title>
   <script src="/static/verification.js" defer></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 400px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .form {
+      box-sizing: border-box;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .input-field {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 4px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style> 
 </head>
 <body>
-
-  <h1>Email Verification</h1>
-
-  <form id="verificationForm">
-    <label for="verificationCode">Verification Code:</label>
-    <input type="text" id="verificationCode" name="verificationCode" required><br>
-
-    <button type="button" onclick="submitVerificationCode()">Submit</button>
-  </form>
-
-  <script>
-    
-  </script>
-
+  <div class="container">
+    <h1>Email Verification</h1>
+    <div class="form verification">
+      <form id="verificationForm">
+        <div class="input-field">
+          <input type="text" id="verificationCode" name="verificationCode" placeholder="Enter verification code" required>
+          <i class="uil uil-lock icon"></i>
+        </div>
+        <button type="button" onclick="submitVerificationCode()">Submit</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
