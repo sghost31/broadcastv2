@@ -7,7 +7,8 @@ async function submitVerificationCode() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/verify', {
+      console.log('Sending request to http://192.168.1.225:5123/verify');
+      const response = await fetch('http://192.168.1.225:5123/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

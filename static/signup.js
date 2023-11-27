@@ -4,7 +4,7 @@ async function signup() {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
     const phone = document.getElementById('phone').value;
-
+    const socket = io("https://192.168.1.225:5123", { path: "/socket.io" });
     // Basic client-side validation
     if (!username || !email || !password || !confirmPassword || !phone) {
       alert('Please fill in all fields.');
@@ -17,12 +17,14 @@ async function signup() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password, confirmPassword, phone }),
+      const response = await fetch('http://192.168.1.225:5123/signup', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, email, password, confirmPassword, phone }),
+          credentials: 'include',  // Include credentials (cookies) in the request
+          mode: 'cors',
       });
 
       const data = await response.json();
